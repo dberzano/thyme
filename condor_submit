@@ -1,0 +1,38 @@
+#!/usr/bin/env python2
+import pika, sys, os
+exe = ""
+env = ""
+queue = os.environ.get("CARROT_QUEUE", "alien_jobs")
+rmq_host = os.environ.get("CARROT_RABBITMQ", "localhost:5672")
+rmq_port = 5672
+if ":" in rmq_host:
+  rmq_host,rmq_port = rmq_host.split(":", 1)
+  try:
+    rmq_port = int(rmq_port)
+  except ValueError as e:
+    sys.stderr.write("Wrong port %s specified.\n" % rmq_port)
+    sys.exit(3)
+
+for line in sys.stdin.readlines():
+  line = line.strip()
+  if line.startswith("executable") and "=" in line:
+    exe = line.split("=", 1)[1].strip()
+  elif line.startswith("environment") and "=" in line:
+    env = line.split("=", 1)[1].strip()
+try:
+  send = env + "\n" + open(exe).read()
+except IOError as e:
+  sys.stderr.write("Cannot read job script.\n")
+  sys.exit(1)
+try:
+  rmq = pika.BlockingConnection(pika.ConnectionParameters(rmq_host, rmq_port))
+  ch = rmq.channel()
+  ch.queue_declare(queue=queue)
+  ch.basic_publish(exchange="", routing_key=queue, body=send)
+except Exception as e:
+  sys.stderr.write("Connection problem (%s): %s\n" % (e.__class__.__name__, e))
+  sys.exit(2)
+try:
+  rmq.close()
+except:
+  pass

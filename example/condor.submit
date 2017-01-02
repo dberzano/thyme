@@ -1,0 +1,11 @@
+executable = /thyme/example/agent.sh
+arguments =
+notification = Error
+Stream_output = false
+Stream_error = false
+
+output = /thyme/example/AliEn.JobAgent.20075.26757.out
+error  = /thyme/example/AliEn.JobAgent.20075.26757.err
+log    = /thyme/example/AliEn.JobAgent.20075.26757.log
+environment=CONDOR_ID=$(Cluster).$(Process);ALIEN_CM_AS_LDAP_PROXY=alihltcloud2.cern.ch:8084;ALIEN_JOBAGENT_ID=20075.26757;ALIEN_ALICE_CM_AS_LDAP_PROXY=alihltcloud2.cern.ch:8084
+queue

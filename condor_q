@@ -1,0 +1,39 @@
+#!/usr/bin/env python2
+import pika
+from sys import argv, exit
+from os import environ
+queue = environ.get("CARROT_QUEUE", "alien_jobs")
+rmq_host = environ.get("CARROT_RABBITMQ", "localhost:5672")
+rmq_port = 5672
+
+def get_queue_size():
+  n = None
+  try:
+    rmq = pika.BlockingConnection(pika.ConnectionParameters(rmq_host, rmq_port))
+    ch = rmq.channel()
+    resp = ch.queue_declare(queue=queue, passive=True)
+    n = resp.method.message_count
+  except:
+    pass
+  try:
+    rmq.close()
+  except:
+    pass
+  if n is not None:
+    return n
+  exit(2)
+
+if ":" in rmq_host:
+  rmq_host,rmq_port = rmq_host.split(":", 1)
+  try:
+    rmq_port = int(rmq_port)
+  except ValueError as e:
+    exit(3)
+if len(argv) >= 3 and argv[1] == "-constraint":
+  if argv[2] == "JobStatus==1":
+    print "**waiting**\n" * get_queue_size()
+    exit(0)
+  elif argv[2] == "JobStatus==1 || JobStatus==2":
+    print "**waiting**\n" * get_queue_size()  # we don't know how many running
+    exit(0)
+exit(1)

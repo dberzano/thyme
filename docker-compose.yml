@@ -1,0 +1,39 @@
+version: "2"
+services:
+
+  rabbit:
+    image: rabbitmq
+
+  condor_submit:
+    build: "thyme_dock/"
+    volumes:
+      - ".:/thyme:ro"
+    command: bash -c "/thyme/condor_submit < /thyme/example/condor.submit"
+    links:
+      - rabbit
+    environment:
+      - CARROT_RABBITMQ=rabbit:5672
+      - CARROT_QUEUE=aliens
+
+  condor_q:
+    build: "thyme_dock/"
+    volumes:
+      - ".:/thyme:ro"
+    command: bash -c "while [[ 1 ]]; do /thyme/condor_q -constraint JobStatus==1; sleep 5; done"
+    links:
+      - rabbit
+    environment:
+      - CARROT_RABBITMQ=rabbit:5672
+      - CARROT_QUEUE=aliens
+
+  worker:
+    build: "thyme_dock/"
+    volumes:
+     - ".:/thyme:ro"
+    command: bash -c "cd /thyme; ./thyme_worker --rabbitmq rabbit --queue aliens"
+    links:
+     - rabbit
+
+  noop:
+    image: busybox
+    command: sh -c "while true; do sleep 100; done"
