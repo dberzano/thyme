@@ -40,3 +40,20 @@ is available. Once a job is fetched from the queue it is gone, and there is no
 way to know how many jobs were fetched and are running. Those features are
 typical of batch systems and were not implemented as we do not need them in many
 cases (such as AliEn).
+
+
+Try it locally
+--------------
+
+You can try it locally with Docker Compose. Bring up the cluster:
+
+    docker-compose up
+
+You can submit jobs with:
+
+    docker-compose scale condor_submit=<N>
+
+where `<N>` is the number of jobs to submit. You can scale the workers (the ones
+fetching and running the jobs) by using:
+
+    docker-compose scale worker=<N>
