@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
+from __future__ import print_function
 import pika
-from sys import argv, exit
+from sys import argv, exit, stdout
 from os import environ
 queue = environ.get("CARROT_QUEUE", "alien_jobs")
 rmq_host = environ.get("CARROT_RABBITMQ", "localhost:5672")
@@ -27,11 +28,18 @@ if ":" in rmq_host:
     rmq_port = int(rmq_port)
   except ValueError as e:
     exit(2)
-if len(argv) >= 3 and argv[1] == "-constraint":
-  if argv[2] == "JobStatus==1":
-    print "**waiting**\n" * get_queue_size()
+expect = False
+if len(argv) == 1:
+  # has to return 0 to pass AliEn healthcheck
+  exit(0)
+for a in argv:
+  if expect and (a == "JobStatus==1" or a == "JobStatus==1 || JobStatus==2"):
+    # 1 == waiting, 2 == running (which we don't know here)
+    for _ in range(get_queue_size()):
+      print("W")
     exit(0)
-  elif argv[2] == "JobStatus==1 || JobStatus==2":
-    print "**waiting**\n" * get_queue_size()  # we don't know how many running
-    exit(0)
+  if a == "-constraint":
+    expect = True
+  else:
+    expect = False
 exit(1)
