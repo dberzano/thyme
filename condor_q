@@ -7,7 +7,7 @@ rmq_host = environ.get("CARROT_RABBITMQ", "localhost:5672")
 rmq_port = 5672
 
 def get_queue_size():
-  n = None
+  n = 0
   try:
     rmq = pika.BlockingConnection(pika.ConnectionParameters(rmq_host, rmq_port))
     ch = rmq.channel()
@@ -19,16 +19,14 @@ def get_queue_size():
     rmq.close()
   except:
     pass
-  if n is not None:
-    return n
-  exit(2)
+  return n
 
 if ":" in rmq_host:
   rmq_host,rmq_port = rmq_host.split(":", 1)
   try:
     rmq_port = int(rmq_port)
   except ValueError as e:
-    exit(3)
+    exit(2)
 if len(argv) >= 3 and argv[1] == "-constraint":
   if argv[2] == "JobStatus==1":
     print "**waiting**\n" * get_queue_size()
