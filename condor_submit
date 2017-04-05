@@ -2,8 +2,8 @@
 import pika, sys, os
 exe = ""
 env = ""
-queue = os.environ.get("CARROT_QUEUE", "alien_jobs")
-rmq_host = os.environ.get("CARROT_RABBITMQ", "localhost:5672")
+queue = os.environ.get("THYME_QUEUE", "alien_jobs")
+rmq_host = os.environ.get("THYME_RABBITMQ", "localhost:5672")
 rmq_port = 5672
 if ":" in rmq_host:
   rmq_host,rmq_port = rmq_host.split(":", 1)

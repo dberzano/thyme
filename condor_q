@@ -3,8 +3,8 @@ from __future__ import print_function
 import pika
 from sys import argv, exit, stdout
 from os import environ
-queue = environ.get("CARROT_QUEUE", "alien_jobs")
-rmq_host = environ.get("CARROT_RABBITMQ", "localhost:5672")
+queue = environ.get("THYME_QUEUE", "alien_jobs")
+rmq_host = environ.get("THYME_RABBITMQ", "localhost:5672")
 rmq_port = 5672
 
 def get_queue_size():
